@@ -16,6 +16,16 @@ neoForge {
     version = project.neo_version
 }
 
+// Your repo has all files in one flat folder, so tell Gradle where each file is.
+sourceSets {
+    main {
+        java {
+            srcDirs = ['.']
+            include '*.java'
+        }
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
@@ -26,5 +36,18 @@ jar {
             'Automatic-Module-Name': 'spawnintensity',
             'FMLModType': 'MOD'
         )
+    }
+    from('.') { include 'pack.mcmeta' }
+    from('.') {
+        include 'neoforge.mods.toml'
+        into 'META-INF'
+    }
+    from('.') {
+        include 'global_loot_modifiers.json'
+        into 'data/neoforge/loot_modifiers'
+    }
+    from('.') {
+        include 'multiplier.json'
+        into 'data/spawnintensity/loot_modifiers'
     }
 }
