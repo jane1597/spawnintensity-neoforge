@@ -1,0 +1,31 @@
+name: Build NeoForge mod
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+      - name: Build
+        run: gradle build --no-daemon
+      - name: Check the jar contains the mod file
+        run: |
+          echo "---- files in repo ----"
+          find src -type f | sort
+          echo "---- jar contents ----"
+          unzip -l build/libs/*.jar
+          unzip -l build/libs/*.jar | grep "META-INF/neoforge.mods.toml" || (echo "ERROR: neoforge.mods.toml is missing from the jar" && exit 1)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spawnintensity-neoforge-jar
+          path: build/libs/*.jar
