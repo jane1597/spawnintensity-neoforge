@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+
+[[mods]]
+modId="spawnintensity"
+version="2.0.0"
+displayName="Spawn Intensity"
+description='''
+Multiply mob spawns (vanilla AND modded hostile mobs), loot, block drops and chest loot (x1 to x100), speed up growth, shorten item despawn, and toggle Apocalypse mode (zombies only, even by day). Control it with config/spawnintensity-common.toml, /spawnintensity, or the Spawn Sit clock.
+'''
+
+[[dependencies.spawnintensity]]
+modId="neoforge"
+type="required"
+versionRange="[21.1,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.spawnintensity]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.22)"
+ordering="NONE"
+side="BOTH"
