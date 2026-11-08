@@ -18,13 +18,11 @@ jobs:
           gradle-version: 8.10.2
       - name: Build
         run: gradle build --no-daemon
-      - name: Check the jar contains the mod file
+      - name: Check the jar
         run: |
-          echo "---- files in repo ----"
-          find src -type f | sort
-          echo "---- jar contents ----"
           unzip -l build/libs/*.jar
-          unzip -l build/libs/*.jar | grep "META-INF/neoforge.mods.toml" || (echo "ERROR: neoforge.mods.toml is missing from the jar" && exit 1)
+          unzip -l build/libs/*.jar | grep "META-INF/neoforge.mods.toml"
+          unzip -l build/libs/*.jar | grep "com/spawnintensity/Handlers.class"
       - uses: actions/upload-artifact@v4
         with:
           name: spawnintensity-neoforge-jar
