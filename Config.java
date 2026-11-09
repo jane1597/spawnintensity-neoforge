@@ -31,6 +31,12 @@ public final class Config {
     public static final ModConfigSpec.IntValue DESPAWN_SECONDS =
             B.comment("Dropped items despawn after this many seconds (300 = vanilla)")
                     .defineInRange("itemDespawnSeconds", 300, 5, 300);
+    public static final ModConfigSpec.IntValue BREED_COOLDOWN =
+            B.comment("Seconds before animals can breed again after breeding (300 = vanilla, 0 = no cooldown)")
+                    .defineInRange("breedingCooldownSeconds", 300, 0, 300);
+    public static final ModConfigSpec.IntValue BABY_GROWTH =
+            B.comment("Seconds for a baby animal to grow up (1200 = vanilla, 10 = very fast)")
+                    .defineInRange("babyGrowthSeconds", 1200, 10, 1200);
     public static final ModConfigSpec.BooleanValue APOCALYPSE =
             B.comment("Apocalypse mode: only zombies, they spawn by day, new zombie loot").define("apocalypse", false);
 
@@ -86,6 +92,8 @@ public final class Config {
     public static int lootMult() { return get(LOOT_MULT, 1); }
     public static int blockMult() { return get(BLOCK_MULT, 1); }
     public static int chestMult() { return get(CHEST_MULT, 1); }
+    public static int breedCooldown() { return get(BREED_COOLDOWN, 300); }
+    public static int babyGrowth() { return get(BABY_GROWTH, 1200); }
     public static int despawnSeconds() { return get(DESPAWN_SECONDS, 300); }
 
     public static List<String> blacklist() { return split(str(SPAWN_BLACKLIST, "")); }

@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -168,6 +169,7 @@ public class Handlers {
                 + ", cap " + Config.mobCap() + ") | Growth x" + Config.growth()
                 + " | Loot x" + Config.lootMult() + " | Blocks x" + Config.blockMult()
                 + " | Chests x" + Config.chestMult() + " | Item despawn " + Config.despawnSeconds()
+                + "s | Breeding cooldown " + Config.breedCooldown() + "s | Baby growth " + Config.babyGrowth()
                 + "s | Apocalypse " + (Config.apocalypse() ? "ON" : "off");
     }
 
@@ -343,6 +345,7 @@ public class Handlers {
         List<ItemEntity> expired = new ArrayList<>();
         for (ServerLevel level : server.getAllLevels()) {
             for (Entity en : level.getAllEntities()) {
+                if (en instanceof AgeableMob am) adjustAge(am);
                 if (en instanceof Mob) {
                     all++;
                     if (isHostile(en)) hostile++;
@@ -356,6 +359,25 @@ public class Handlers {
         countHostile = hostile;
         countAnimal = animal;
         for (ItemEntity ie : expired) ie.discard();
+    }
+
+    /**
+     * Runs once a second per animal. Adults: shorten the breeding cooldown. Babies: skip ahead so they
+     * grow up in the chosen number of seconds. Vanilla values: cooldown 300 s, growing up 1200 s.
+     */
+    private static void adjustAge(AgeableMob am) {
+        int age = am.getAge();
+        if (age > 0) {
+            int maxCooldown = Config.breedCooldown() * 20;
+            if (maxCooldown < 6000 && age > maxCooldown) am.setAge(maxCooldown);
+        } else if (age < 0) {
+            int growSeconds = Config.babyGrowth();
+            if (growSeconds < 1200) {
+                double factor = 1200.0 / growSeconds;
+                int extra = (int) Math.round((factor - 1.0) * 20.0);
+                am.setAge(Math.min(0, age + extra));
+            }
+        }
     }
 
     private void apocalypseSpawner(MinecraftServer server) {
@@ -416,7 +438,7 @@ public class Handlers {
         if (!isController(e.getItemStack())) return;
         e.getEntity().sendSystemMessage(Component.literal(status()).withStyle(ChatFormatting.YELLOW));
         e.getEntity().sendSystemMessage(Component.literal(
-                "Change with: /spawnintensity mobs|growth|loot|blocks|chests|despawn|mobcap <n>, filter <all|hostile|animals>, apocalypse <true|false>")
+                "Change with: /spawnintensity mobs|growth|loot|blocks|chests|despawn|mobcap|breeding|babygrowth <n>, filter <all|hostile|animals>, apocalypse <true|false>")
                 .withStyle(ChatFormatting.GRAY));
     }
 
@@ -461,6 +483,8 @@ public class Handlers {
         root.then(intCmd("chests", 1, 100, (s, v) -> Config.set(Config.CHEST_MULT, v)));
         root.then(intCmd("despawn", 5, 300, (s, v) -> Config.set(Config.DESPAWN_SECONDS, v)));
         root.then(intCmd("mobcap", 100, 1000, (s, v) -> Config.set(Config.MOB_CAP, v)));
+        root.then(intCmd("breeding", 0, 300, (s, v) -> Config.set(Config.BREED_COOLDOWN, v)));
+        root.then(intCmd("babygrowth", 10, 1200, (s, v) -> Config.set(Config.BABY_GROWTH, v)));
 
         LiteralArgumentBuilder<CommandSourceStack> filter = Commands.literal("filter");
         for (Config.SpawnFilter sf : Config.SpawnFilter.values()) {
