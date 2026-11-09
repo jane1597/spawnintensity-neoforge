@@ -74,6 +74,12 @@ public class MultiplierModifier extends LootModifier {
         ObjectArrayList<ItemStack> out = new ObjectArrayList<>();
         for (ItemStack s : in) {
             if (s.isEmpty()) continue;
+            // Items that cannot stack (tools, weapons, armor, books ...) stay as ONE copy.
+            // Only stackable items get multiplied.
+            if (s.getMaxStackSize() <= 1) {
+                out.add(s.copy());
+                continue;
+            }
             long total = (long) s.getCount() * mult;
             int max = Math.max(1, s.getMaxStackSize());
             int made = 0;

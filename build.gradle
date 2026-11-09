@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.78'
 }
 
-version = '2.0.0'
+version = '2.0.2'
 group = 'com.spawnintensity'
 
 base {
